@@ -1,0 +1,19 @@
+Qué condiciones de carrera se podrían presentar? 
+* Pueden realizar cambios en un plano al mismo tiempo que alguien lo está buscando. Esto causa un problema de datos inconsistentes, ya que el plano que se 
+  encuentra en la búsqueda puede no tener la misma información que tenía cuando se inició la búsqueda.
+
+* puede agregar un nuevo plano al mismo tiempo que alguien está buscando planos existentes. Esto crea problemas de datos inconsistentes, ya que la cantidad 
+  de planos que se muestra en la búsqueda no coincide con la cantidad de planos que existen en ese momento después de agregar el nuevo plano.
+
+Cuales son las respectivas regiones críticas?  
+  las secciones de código donde se realizan operaciones que pueden causar inconsistencias en los datos debido a la concurrencia de múltiples hilos o procesos. 
+  En este caso, las regiones críticas son las operaciones de consulta y modificación de los planos en el sistema. (GET,POST,PUT,DELETE)
+Alternativas de solución
+
+Para asegurar que nuestro sistema de gestión de planos funcione de manera segura en entornos donde múltiples procesos pueden intentar acceder o modificar la información simultáneamente, hemos adoptado medidas específicas en nuestra solución de almacenamiento, InMemoryBlueprintPersistence. Esta medida clave implica el uso de un mapa ConcurrentHashMap para almacenar los planos, reemplazando el uso de una estructura de datos convencional que no estaba diseñada para manejar el acceso concurrente de manera eficaz.
+
+Antes de esta mejora, nos enfrentábamos al riesgo de que las operaciones simultáneas, como las consultas y las actualizaciones de planos, pudieran producir resultados inconsistentes o erróneos debido a la interferencia entre hilos, conocido como condiciones de carrera. Estas condiciones se presentaban porque múltiples hilos podrían leer y escribir en la misma estructura de datos sin coordinación, llevando a posibles sobreescrituras o pérdidas de datos.
+
+Al emplear ConcurrentHashMap, hemos abordado proactivamente estas áreas de vulnerabilidad, las cuales referimos como regiones críticas. Esta estructura de datos permite un acceso controlado y sincronizado, asegurando que cada hilo acceda al mapa de forma que sus operaciones no se solapen de manera perjudicial con las de otros hilos. En efecto, esto permite que las operaciones sobre los planos se lleven a cabo de manera ordenada y secuencial, aunque sean iniciadas de forma concurrente, garantizando así la coherencia y la integridad de los datos en todo momento.
+
+Esta solución mejora la fiabilidad de nuestra aplicación al prevenir inconsistencias de datos y otros problemas asociados con el acceso concurrente, asegurando que nuestro sistema de persistencia sea robusto y seguro para operaciones multitarea.
